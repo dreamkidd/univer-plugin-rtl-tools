@@ -9,6 +9,8 @@
     "dev": "tsup --watch",
     "build": "tsup",
     "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -35,7 +37,8 @@
     "@univerjs/core": "^0.4.0",
     "@univerjs/ui": "^0.4.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.18"
   },
   "dependencies": {
     "bidi-js": "^1.0.3"

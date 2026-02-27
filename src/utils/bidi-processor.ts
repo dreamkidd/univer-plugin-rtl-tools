@@ -1,7 +1,5 @@
 import bidiFactory from 'bidi-js';
 
-// Initialize the bidi engine. 
-// Note: In a production environment, this might be loaded asynchronously depending on the bidi-js version.
 const bidi = bidiFactory();
 
 export interface TextRun {
@@ -11,9 +9,26 @@ export interface TextRun {
 }
 
 /**
- * Processes a logical string (how it's typed/stored) and converts it into 
+ * Reverses a string while preserving grapheme clusters (combining characters, surrogate pairs).
+ * Uses Intl.Segmenter when available, falls back to Array.from for surrogate pair safety.
+ */
+export function reverseGraphemes(text: string): string {
+    if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
+        const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+        return [...segmenter.segment(text)].map(s => s.segment).reverse().join('');
+    }
+    return Array.from(text).reverse().join('');
+}
+
+/**
+ * Processes a logical string (how it's typed/stored) and converts it into
  * an array of visual text runs, correctly ordered from left to right for rendering on a Canvas.
- * 
+ *
+ * Uses the Unicode Bidirectional Algorithm via bidi-js:
+ * 1. getEmbeddingLevels → returns { levels: Uint8Array, paragraphs: [...] }
+ * 2. getReorderSegments → returns flip ranges to reverse in-place for visual ordering
+ * 3. Build text runs grouped by embedding level from the reordered indices
+ *
  * @param logicalText The raw string from the Univer cell model
  * @param baseDirection The overall direction of the paragraph (can be forced or auto-detected)
  * @returns An array of TextRun objects sorted in visual (left-to-right Canvas) order
@@ -23,49 +38,60 @@ export function getVisualTextRuns(logicalText: string, baseDirection: 'ltr' | 'r
         return [];
     }
 
-    // 1. Get the embedding levels for each character
-    // The bidi algorithm assigns an embedding level to each character.
-    // Even levels (0, 2...) are LTR, odd levels (1, 3...) are RTL.
-    const embeddingLevels = bidi.getEmbeddingLevels(logicalText, baseDirection);
+    // 1. Get embedding levels for each character.
+    // Returns { levels: Uint8Array, paragraphs: [{start, end, level}] }
+    const embeddingLevelsResult = bidi.getEmbeddingLevels(logicalText, baseDirection);
+    const { levels } = embeddingLevelsResult;
 
-    // 2. Reorder the string based on the embedding levels to get the visual order
-    // bidi-js provides a method to get the visual ordering of characters
-    // 'reorderVisual' returns an array of logical indices in their final visual order.
-    // e.g., if logical is "abc(ARABIC)def", it might return [0,1,2, 9,8,7,6,5,4,3, 10,11,12]
-    const visualOrdering = bidi.getReorderSegments(logicalText, embeddingLevels);
+    // 2. Get flip segments — ranges to reverse in-place for visual reordering.
+    // Each flip is [start, end] (inclusive) to be reversed in order.
+    const flips = bidi.getReorderSegments(logicalText, embeddingLevelsResult);
 
-    const textRuns: TextRun[] = [];
-
-    // 3. Construct the text runs
-    // A run is a contiguous sequence of characters with the same embedding level and direction.
-    for (const segment of visualOrdering) {
-        // segment: [start_index, end_index] from the logical text, representing a directional run
-        const start = segment[0];
-        const end = segment[1];
-        
-        // Extract the substring for this run
-        let runText = logicalText.substring(start, end + 1);
-        
-        // The level of this segment determines its direction
-        const level = embeddingLevels[start];
-        const isRtl = level % 2 !== 0;
-
-        // If it's an RTL run, the characters within this segment need to be reversed visually
-        // because Canvas fillText (when drawing LTR) draws the first character of the string first (leftmost).
-        // Since it's RTL, the logical first character should be drawn rightmost within this run.
-        if (isRtl) {
-            runText = runText.split('').reverse().join('');
+    // 3. Build an index array and apply flips to get visual ordering of characters.
+    const indices = Array.from({ length: logicalText.length }, (_, i) => i);
+    for (const [start, end] of flips) {
+        let left = start;
+        let right = end;
+        while (left < right) {
+            const tmp = indices[left];
+            indices[left] = indices[right];
+            indices[right] = tmp;
+            left++;
+            right--;
         }
-
-        textRuns.push({
-            text: runText,
-            direction: isRtl ? 'rtl' : 'ltr',
-            level: level
-        });
     }
 
-    // Because 'getReorderSegments' usually returns segments in visual order (left to right)
-    // we can return the array directly. The Canvas rendering engine will just iterate
-    // through this array and draw them one after another from left to right.
+    // 4. Walk the visually-ordered indices and group consecutive characters
+    //    with the same embedding level into text runs.
+    if (indices.length === 0) {
+        return [];
+    }
+
+    const textRuns: TextRun[] = [];
+    let runStartIdx = 0;
+    let runLevel = levels[indices[0]];
+
+    for (let i = 1; i <= indices.length; i++) {
+        const currentLevel = i < indices.length ? levels[indices[i]] : -1;
+
+        if (currentLevel !== runLevel) {
+            // Collect characters for this run
+            let runText = '';
+            for (let j = runStartIdx; j < i; j++) {
+                runText += logicalText[indices[j]];
+            }
+
+            const isRtl = runLevel % 2 !== 0;
+            textRuns.push({
+                text: runText,
+                direction: isRtl ? 'rtl' : 'ltr',
+                level: runLevel,
+            });
+
+            runStartIdx = i;
+            runLevel = currentLevel;
+        }
+    }
+
     return textRuns;
 }
