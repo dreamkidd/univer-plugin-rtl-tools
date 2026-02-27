@@ -12,6 +12,7 @@ export * from './services/rtl-auto-detect.service';
 export * from './controllers/rtl-css.controller';
 export * from './controllers/rtl-ui.controller';
 export * from './controllers/rtl-status.controller';
+export * from './controllers/rtl-auto-apply.controller';
 
 // Menu
 export * from './controllers/menu/rtl-menu';

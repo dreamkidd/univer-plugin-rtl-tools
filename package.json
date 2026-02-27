@@ -1,6 +1,6 @@
 {
-  "name": "univer-plugin-rtl-tools",
-  "version": "0.1.0",
+  "name": "@dreamkidd/univer-plugin-rtl-tools",
+  "version": "0.2.0",
   "description": "A Univer plugin to provide UI tools and smart detection for Right-To-Left (RTL) text layout.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -43,8 +43,8 @@
   },
   "peerDependencies": {
     "@univerjs/core": ">=0.4.0",
-    "@univerjs/ui": ">=0.4.0",
-    "@univerjs/engine-render": ">=0.4.0"
+    "@univerjs/engine-render": ">=0.4.0",
+    "@univerjs/ui": ">=0.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.19.34",

@@ -11,6 +11,7 @@ import { IShortcutService } from '@univerjs/ui';
 import { RtlCssController } from './controllers/rtl-css.controller';
 import { RtlRenderController } from './controllers/rtl-render.controller';
 import { RtlStatusController } from './controllers/rtl-status.controller';
+import { RtlAutoApplyController } from './controllers/rtl-auto-apply.controller';
 import { SetTextDirectionCommand } from './commands/set-text-direction.command';
 import { IRtlAutoDetectService, RtlAutoDetectService } from './services/rtl-auto-detect.service';
 import { ToggleRtlCommand } from './commands/toggle-rtl.command';
@@ -34,6 +35,7 @@ export class UniverRtlToolsPlugin extends Plugin {
             [RtlCssController],
             [RtlRenderController],
             [RtlStatusController],
+            [RtlAutoApplyController],
         ]);
 
         const commandService = this._injector.get(ICommandService);
@@ -52,6 +54,7 @@ export class UniverRtlToolsPlugin extends Plugin {
             [RtlCssController],
             [RtlRenderController],
             [RtlStatusController],
+            [RtlAutoApplyController],
         ]);
     }
 }
