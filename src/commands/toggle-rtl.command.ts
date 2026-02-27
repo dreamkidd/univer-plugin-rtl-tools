@@ -1,4 +1,5 @@
-import { CommandType, ICommand, IUniverInstanceService } from '@univerjs/core';
+import { CommandType, ICommand, IUniverInstanceService, UniverInstanceType } from '@univerjs/core';
+import { Workbook } from '@univerjs/core';
 import { RtlCssController } from '../controllers/rtl-css.controller';
 
 export const ToggleRtlCommand: ICommand = {
@@ -8,7 +9,7 @@ export const ToggleRtlCommand: ICommand = {
         const univerInstanceService = accessor.get(IUniverInstanceService);
         const rtlCssController = accessor.get(RtlCssController);
 
-        const workbook = univerInstanceService.getCurrentUnitForType(0); // 0 is Sheet
+        const workbook = univerInstanceService.getCurrentUnitForType<Workbook>(UniverInstanceType.UNIVER_SHEET);
         if (!workbook) return false;
 
         rtlCssController.toggle();

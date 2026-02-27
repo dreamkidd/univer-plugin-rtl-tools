@@ -1,4 +1,4 @@
-import { Disposable, Inject, Injector, LifecycleStages, OnLifecycle } from '@univerjs/core';
+import { Disposable, Inject } from '@univerjs/core';
 import { ILayoutService } from '@univerjs/ui';
 
 const RTL_STYLE_ID = 'univer-rtl-tools-styles';
@@ -92,13 +92,11 @@ const RTL_CSS_RULES = `
 }
 `.trim();
 
-@OnLifecycle(LifecycleStages.Rendered, RtlCssController)
 export class RtlCssController extends Disposable {
     private _enabled = false;
     private _styleElement: HTMLStyleElement | null = null;
 
     constructor(
-        @Inject(Injector) private readonly _injector: Injector,
         @Inject(ILayoutService) private readonly _layoutService: ILayoutService
     ) {
         super();
