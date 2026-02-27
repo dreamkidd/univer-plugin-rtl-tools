@@ -1,30 +1,43 @@
-import { Plugin, PluginType, Inject, Injector } from '@univerjs/core';
-import { RtlUIController } from './controllers/rtl-ui.controller';
+import {
+    Inject,
+    Injector,
+    Plugin,
+    registerDependencies,
+    touchDependencies,
+    UniverInstanceType,
+} from '@univerjs/core';
+import { ICommandService } from '@univerjs/core';
 import { RtlCssController } from './controllers/rtl-css.controller';
-import { ToggleRtlCommand } from './commands/toggle-rtl.command';
+import { RtlRenderController } from './controllers/rtl-render.controller';
+import { SetTextDirectionCommand } from './commands/set-text-direction.command';
+import { IRtlAutoDetectService, RtlAutoDetectService } from './services/rtl-auto-detect.service';
 
 export class UniverRtlToolsPlugin extends Plugin {
-    static override type = PluginType.Sheet;
+    static override type = UniverInstanceType.UNIVER_SHEET;
     static override pluginName = 'SHEET_RTL_TOOLS_PLUGIN';
 
     constructor(
-        _config: any,
+        _config: unknown,
         @Inject(Injector) override readonly _injector: Injector
     ) {
-        super(UniverRtlToolsPlugin.pluginName);
+        super();
     }
 
     override onStarting(): void {
-        const dependencies: [any][] = [
-            [RtlUIController],
+        registerDependencies(this._injector, [
+            [IRtlAutoDetectService, { useClass: RtlAutoDetectService }],
             [RtlCssController],
-        ];
+            [RtlRenderController],
+        ]);
 
-        dependencies.forEach((d) => this._injector.add(d));
+        const commandService = this._injector.get(ICommandService);
+        commandService.registerCommand(SetTextDirectionCommand);
     }
 
-    override onReady(): void {
-        this._injector.get(RtlUIController);
-        this._injector.get(RtlCssController);
+    override onRendered(): void {
+        touchDependencies(this._injector, [
+            [RtlCssController],
+            [RtlRenderController],
+        ]);
     }
 }
