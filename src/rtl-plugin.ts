@@ -1,5 +1,6 @@
 import { Plugin, PluginType, Inject, Injector } from '@univerjs/core';
 import { RtlUIController } from './controllers/rtl-ui.controller';
+import { RtlCssController } from './controllers/rtl-css.controller';
 import { ToggleRtlCommand } from './commands/toggle-rtl.command';
 
 export class UniverRtlToolsPlugin extends Plugin {
@@ -16,6 +17,7 @@ export class UniverRtlToolsPlugin extends Plugin {
     override onStarting(): void {
         const dependencies: [any][] = [
             [RtlUIController],
+            [RtlCssController],
         ];
 
         dependencies.forEach((d) => this._injector.add(d));
@@ -23,5 +25,6 @@ export class UniverRtlToolsPlugin extends Plugin {
 
     override onReady(): void {
         this._injector.get(RtlUIController);
+        this._injector.get(RtlCssController);
     }
 }
