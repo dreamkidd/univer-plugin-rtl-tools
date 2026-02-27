@@ -9,6 +9,7 @@ export default defineConfig({
     clean: true,
     external: [
         '@univerjs/core',
-        '@univerjs/ui'
+        '@univerjs/ui',
+        '@univerjs/engine-render',
     ],
 });
