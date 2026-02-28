@@ -20,7 +20,6 @@ vi.mock('@univerjs/engine-render', () => ({
 
 // Import after mock is set up
 import { TextDirection } from '@univerjs/core';
-import { getVisualTextRuns } from '../rtl-render.controller';
 import { isRTLDominant } from '../../utils/rtl-detector';
 
 /**
@@ -28,44 +27,10 @@ import { isRTLDominant } from '../../utils/rtl-detector';
  *
  * The controller relies on Univer DI (IRenderManagerService, IUniverInstanceService)
  * which cannot be fully mocked in unit tests. We focus on:
- *  1. The re-exported getVisualTextRuns (pure logic, no DI needed).
- *  2. The cell RTL detection logic (tested through the pure utility functions
+ *  1. The cell RTL detection logic (tested through the pure utility functions
  *     that _isCellRtl delegates to).
- *  3. The monkey-patch mechanics using a plain object mock of the font extension.
+ *  2. The monkey-patch mechanics using a plain object mock of the font extension.
  */
-
-// ---------------------------------------------------------------------------
-// Tests: re-exported getVisualTextRuns
-// ---------------------------------------------------------------------------
-
-describe('getVisualTextRuns (re-exported from rtl-render.controller)', () => {
-    it('is exported from rtl-render.controller', () => {
-        expect(typeof getVisualTextRuns).toBe('function');
-    });
-
-    it('returns RTL run for Arabic text', () => {
-        const runs = getVisualTextRuns('مرحبا');
-        expect(runs.some(r => r.direction === 'rtl')).toBe(true);
-    });
-
-    it('returns LTR run for English text', () => {
-        const runs = getVisualTextRuns('Hello');
-        expect(runs.every(r => r.direction === 'ltr')).toBe(true);
-    });
-
-    it('returns both RTL and LTR runs for mixed text', () => {
-        const runs = getVisualTextRuns('Hello مرحبا World');
-        expect(runs.some(r => r.direction === 'ltr')).toBe(true);
-        expect(runs.some(r => r.direction === 'rtl')).toBe(true);
-    });
-
-    it('preserves all characters with no data loss', () => {
-        const input = 'Hello مرحبا World';
-        const runs = getVisualTextRuns(input);
-        const totalChars = runs.reduce((sum, r) => sum + r.text.length, 0);
-        expect(totalChars).toBe(input.length);
-    });
-});
 
 // ---------------------------------------------------------------------------
 // Tests: _isCellRtl logic (tested through the underlying pure functions)

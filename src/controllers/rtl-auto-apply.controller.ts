@@ -13,17 +13,9 @@ import type { Workbook, Worksheet } from '@univerjs/core';
 import { isRTLDominant } from '../utils/rtl-detector';
 
 /**
- * Unicode RIGHT-TO-LEFT MARK — zero-width char that establishes RTL base
- * direction for the BiDi algorithm. Ensures mixed text (Arabic + numbers)
- * renders correctly: numbers on the left side.
- */
-const RLM = '\u200F';
-
-/**
  * RtlAutoApplyController scans all cells on workbook load and automatically
  * sets td (TextDirection.RIGHT_TO_LEFT) + ht (HorizontalAlign.RIGHT) for
- * cells containing RTL-dominant text. Also prepends RLM for correct BiDi
- * reordering of mixed text.
+ * cells containing RTL-dominant text.
  *
  * This runs once after the workbook is rendered, and also watches for
  * cell value changes to apply RTL detection on new input.
@@ -85,11 +77,6 @@ export class RtlAutoApplyController extends Disposable {
                 if (!text || !isRTLDominant(text, 0.3)) continue;
 
                 rtlCells.push({ row, col });
-
-                // Prepend RLM for BiDi reordering if not already present
-                if (typeof cell.v === 'string' && !cell.v.startsWith(RLM)) {
-                    cell.v = RLM + cell.v;
-                }
             }
         }
 

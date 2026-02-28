@@ -1,8 +1,8 @@
 import { IAccessor } from '@univerjs/core';
 import { IMenuButtonItem, MenuItemType, RibbonStartGroup } from '@univerjs/ui';
-import { ToggleRtlCommand } from '../../commands/toggle-rtl.command';
+import { SetTextDirectionCommand } from '../../commands/set-text-direction.command';
 
-export const RTL_TOOLBAR_ITEM_ID = ToggleRtlCommand.id;
+export const RTL_TOOLBAR_ITEM_ID = SetTextDirectionCommand.id;
 
 /**
  * Menu item factory for the RTL toggle toolbar button.

@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { KeyCode, MetaKeys } from '@univerjs/ui';
 import { ToggleRtlShortcut } from '../rtl-shortcuts';
-import { ToggleRtlCommand } from '../../commands/toggle-rtl.command';
+import { SetTextDirectionCommand } from '../../commands/set-text-direction.command';
 
 describe('ToggleRtlShortcut', () => {
-    it('uses ToggleRtlCommand id', () => {
-        expect(ToggleRtlShortcut.id).toBe(ToggleRtlCommand.id);
+    it('uses SetTextDirectionCommand id', () => {
+        expect(ToggleRtlShortcut.id).toBe(SetTextDirectionCommand.id);
     });
 
     it('has a description', () => {

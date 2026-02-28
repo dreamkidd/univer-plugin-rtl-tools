@@ -7,7 +7,6 @@ import {
     UniverInstanceType,
 } from '@univerjs/core';
 import { IRenderManagerService, Spreadsheet } from '@univerjs/engine-render';
-import { getVisualTextRuns } from '../utils/bidi-processor';
 import { isRTLDominant } from '../utils/rtl-detector';
 
 /**
@@ -185,8 +184,3 @@ export class RtlRenderController extends Disposable {
     }
 }
 
-/**
- * Re-export getVisualTextRuns for convenience — callers (e.g. tests) may want
- * the bidi runs even without instantiating the controller.
- */
-export { getVisualTextRuns };

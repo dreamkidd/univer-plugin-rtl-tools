@@ -54,3 +54,52 @@ export function getRTLPercentage(text: string): number {
 export function isRTLDominant(text: string, threshold: number = 0.3): boolean {
     return getRTLPercentage(text) > threshold;
 }
+
+/**
+ * Returns the direction of the first strong directional character in the text.
+ * This matches Excel's "Context" / readingOrder=0 behavior.
+ *
+ * RTL strong chars:
+ *   Hebrew: 0590-05FF, Arabic/Syriac/Thaana: 0600-07FF
+ *   Hebrew/Arabic Presentation: FB1D-FDFF, Arabic Presentation B: FE70-FEFC
+ *
+ * LTR strong chars:
+ *   Basic Latin A-Z/a-z: 0041-005A, 0061-007A
+ *   Latin Extended: 00C0-024F
+ *   CJK Unified Ideographs: 4E00-9FFF
+ *   CJK Extension A: 3400-4DBF, Compatibility: F900-FAFF
+ *
+ * @param text The string to check
+ * @returns 'rtl' if first strong char is RTL, 'ltr' if LTR, null if no strong chars found
+ */
+export function getFirstStrongDirection(text: string): 'ltr' | 'rtl' | null {
+    if (!text) return null;
+
+    for (let i = 0; i < text.length; i++) {
+        const cp = text.charCodeAt(i);
+
+        // RTL strong characters
+        if (
+            (cp >= 0x0590 && cp <= 0x05FF) || // Hebrew
+            (cp >= 0x0600 && cp <= 0x07FF) || // Arabic, Syriac, Thaana
+            (cp >= 0xFB1D && cp <= 0xFDFF) || // Hebrew/Arabic Presentation A
+            (cp >= 0xFE70 && cp <= 0xFEFC)    // Arabic Presentation B
+        ) {
+            return 'rtl';
+        }
+
+        // LTR strong characters
+        if (
+            (cp >= 0x0041 && cp <= 0x005A) || // Latin uppercase A-Z
+            (cp >= 0x0061 && cp <= 0x007A) || // Latin lowercase a-z
+            (cp >= 0x00C0 && cp <= 0x024F) || // Latin Extended
+            (cp >= 0x3400 && cp <= 0x4DBF) || // CJK Extension A
+            (cp >= 0x4E00 && cp <= 0x9FFF) || // CJK Unified Ideographs
+            (cp >= 0xF900 && cp <= 0xFAFF)    // CJK Compatibility Ideographs
+        ) {
+            return 'ltr';
+        }
+    }
+
+    return null;
+}

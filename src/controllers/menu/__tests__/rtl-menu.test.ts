@@ -5,7 +5,7 @@ import {
     RTL_TOOLBAR_ITEM_ID,
     RTL_MENU_SCHEMA,
 } from '../rtl-menu';
-import { ToggleRtlCommand } from '../../../commands/toggle-rtl.command';
+import { SetTextDirectionCommand } from '../../../commands/set-text-direction.command';
 
 describe('RtlToggleMenuItemFactory', () => {
     it('returns a BUTTON menu item', () => {
@@ -13,9 +13,9 @@ describe('RtlToggleMenuItemFactory', () => {
         expect(item.type).toBe(MenuItemType.BUTTON);
     });
 
-    it('uses ToggleRtlCommand id as the menu item id', () => {
+    it('uses SetTextDirectionCommand id as the menu item id', () => {
         const item = RtlToggleMenuItemFactory(null as any);
-        expect(item.id).toBe(ToggleRtlCommand.id);
+        expect(item.id).toBe(SetTextDirectionCommand.id);
     });
 
     it('has an icon defined', () => {
@@ -32,8 +32,8 @@ describe('RtlToggleMenuItemFactory', () => {
 });
 
 describe('RTL_TOOLBAR_ITEM_ID', () => {
-    it('matches ToggleRtlCommand.id', () => {
-        expect(RTL_TOOLBAR_ITEM_ID).toBe(ToggleRtlCommand.id);
+    it('matches SetTextDirectionCommand.id', () => {
+        expect(RTL_TOOLBAR_ITEM_ID).toBe(SetTextDirectionCommand.id);
     });
 });
 

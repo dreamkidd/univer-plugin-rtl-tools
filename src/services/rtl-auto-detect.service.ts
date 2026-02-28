@@ -1,6 +1,6 @@
 import { createIdentifier, Disposable, ICommandService, TextDirection } from '@univerjs/core';
 import { Optional } from '@univerjs/core';
-import { isRTLDominant, hasRTLCharacters, getRTLPercentage } from '../utils/rtl-detector';
+import { isRTLDominant, hasRTLCharacters, getRTLPercentage, getFirstStrongDirection } from '../utils/rtl-detector';
 import { SetTextDirectionCommand, ISetTextDirectionParams } from '../commands/set-text-direction.command';
 
 export interface IRtlAutoDetectService {
@@ -63,7 +63,18 @@ export class RtlAutoDetectService extends Disposable implements IRtlAutoDetectSe
             return this._cache.get(content)!;
         }
 
-        const result = isRTLDominant(content, this._threshold);
+        // Primary strategy: first strong directional character (matches Excel "Context" behavior)
+        const firstStrong = getFirstStrongDirection(content);
+        let result: boolean;
+        if (firstStrong === 'rtl') {
+            result = true;
+        } else if (firstStrong === 'ltr') {
+            result = false;
+        } else {
+            // Fallback: percentage-based check when no strong directional char found
+            result = isRTLDominant(content, this._threshold);
+        }
+
         this._setCache(content, result);
         return result;
     }
